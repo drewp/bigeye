@@ -1,0 +1,2 @@
+# couldn't figure out how to put these in ~/.pdextended
+exec pd -alsamidi -mididev 5 lighting.pd
