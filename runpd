@@ -1,2 +1,2 @@
 # couldn't figure out how to put these in ~/.pdextended
-exec pd -alsamidi -mididev 5 lighting.pd
+exec pd -path /usr/lib/pd-extended/extra:/usr/lib/pd-extended/extra/sfruit:/usr/lib/pd-extended/extra/oscx:/usr/lib/pd-extended/extra/list-abs:/usr/lib/pd-extended/extra/moonlib -alsamidi -mididev 5 lighting.pd

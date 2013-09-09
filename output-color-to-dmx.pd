@@ -1,0 +1,29 @@
+#N canvas 1594 1078 737 492 10;
+#X obj 73 22 inlet;
+#X obj 160 278 outlet;
+#X obj 107 118 bng 30 250 50 0 empty empty empty 17 7 0 10 -61319 -1
+-262144;
+#X obj 99 53 color.rgb2pd24;
+#X msg 99 75 color \$1;
+#X obj 216 19 inlet;
+#X obj 161 187 list prepend;
+#X text 141 128 LED out;
+#X obj 21 21 inlet;
+#X obj 155 224 list prepend;
+#X obj 30 188 sprintf send /dmx/%d;
+#X obj 157 251 list trim;
+#X text 11 5 dmx chan;
+#X text 80 5 r \, g \, b (0-1);
+#X text 210 3 optional dmx value (0-1) to output before r \, g \, b
+;
+#X connect 0 0 3 0;
+#X connect 0 0 6 0;
+#X connect 3 0 4 0;
+#X connect 4 0 2 0;
+#X connect 5 0 6 1;
+#X connect 6 0 9 0;
+#X connect 8 0 10 0;
+#X connect 9 0 11 0;
+#X connect 10 0 9 1;
+#X connect 11 0 1 0;
+#X coords 0 -1 1 1 85 60 1 100 100;
