@@ -48,51 +48,104 @@ class Pole
       [r,g,b] =  colArray[row]
       @ctx.fillStyle = 'rgb(' + Math.round(r*scl) + ',' + Math.round(g*scl) + ',' + Math.round(b*scl) + ')'
       @ctx.fillRect(x, (ledPerPole - row) * pxPerRow, colWidth, pxPerRow - 1)
-    
 
-snowColumn = (frac, primary, snow) ->
-  col = []
+class PadCanvas
+  constructor: (@elem, @config) -> # also a cb for picking coord and img color
+    console.log("set up in ", @elem, @config)
+    title = document.createElement('div')
+    title.textContent = @config.title
+    @elem.appendChild(title)
 
-  for x in [0...Math.round(frac * .7 * ledPerPole)]
-    col.push(primary)
-  for x in [Math.round(frac * .7 * ledPerPole)...Math.round(frac * ledPerPole)]
-    col.push(snow)
-  for x in [0...ledPerPole - col.length + 1]
-    col.push([0,0,0])
-  col
+    canvas = document.createElement('canvas')
+    @elem.appendChild(canvas)
+    canvas.width = canvas.height = 64
+    ctx = canvas.getContext('2d')
     
+    img = new Image()
+    img.src = @config.background
+    img.onload = =>
+      console.log("drawing in bg", img.src)
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      window.img = img
+      window.ctx = ctx
+
+    setColorFromMouse = (ev) =>
+      px = ctx.getImageData(ev.offsetX, ev.offsetY, 1, 1)
+      @config.colorClick?([px.data[0] / 255, px.data[1] / 255, px.data[2] / 255])
+      
+    canvas.addEventListener('click', setColorFromMouse)
+    canvas.addEventListener 'mousemove', (ev) =>
+      setColorFromMouse(ev) if ev.which == 1
+
+
+  # click events, midi events
+    
+ko.bindingHandlers.padCanvas =
+  init: (element, valueAccessor, allBindings, viewModel, bindingContext) ->
+    new PadCanvas(element, valueAccessor())
+
+class Pole2
+  constructor: (@chan) ->
+    @inputScale = ko.observable(1)
+    @inputGamma = ko.observable(1)
+    @primaryColor = ko.observable([1,1,1])
+
+  snowColumn: (frac, primary, snow) =>
+    col = []
+    frac = Math.pow(frac * @inputScale(), @inputGamma())
+    for x in [0...Math.round(frac * .7 * ledPerPole)]
+      col.push(primary)
+    for x in [Math.round(frac * .7 * ledPerPole)...Math.round(frac * ledPerPole)]
+      col.push(snow)
+    for x in [0...ledPerPole - col.length + 1]
+      col.push([0,0,0])
+    col
+
+brighter = (col, scl) ->
+  [Math.min(1, col[0] * scl),
+   Math.min(1, col[1] * scl),
+   Math.min(1, col[2] * scl)]
+
+colorScale = brighter
+      
 window.addEventListener 'load', ->
-  poles = (new Pole(document.getElementById('pole'+i), 100) for i in [0...6])
-  i = 0
+  model = window.model =
+    master:
+      brightness: ko.observable(1)
+      heightScale: ko.observable(1)
+    poles: [
+      new Pole2('bass'),
+      new Pole2('drums'),
+      new Pole2('guitar'),
+      new Pole2('voice'),
+      new Pole2('chan4'),
+      new Pole2('chan5'),
+    ]
+  ko.applyBindings(model)
+
+  for pole in model.poles
+      pole.obj = new Pole(document.getElementById('chan-'+pole.chan), 85)
+
+  lastSound = {}
   atOnce = 1
   step = =>
     t = +new Date()
-    (p.redraw() for p in poles)
+    (p.obj.redraw() for p in model.poles)
     for lp in [0...atOnce]
-      (p.shift() for p in poles)
-    i++
-    if true
-      nextFrame = t + 20
-      for lp in [0...atOnce]
-        tFrac = t + 15 * lp / atOnce
-        for n in [0...6]
-          p = poles[n]
-          ht = (
-            .3 +
-            .2 * Math.sin(tFrac  / 40) +
-            .1 * Math.sin((tFrac - 200) / 20) 
-          )
-          ht = ht * Math.max(0, .3 + .7 * Math.max(0, Math.sin((tFrac + n * 500) / 900)))
-
-          col = snowColumn(ht, [
-                  Math.abs(Math.sin(n)),
-                  Math.abs(Math.cos(n)),
-                  0], [1, 1, 0])
-          p.setColumn(null, col)
-      setTimeout(step, Math.max(0, (nextFrame - (+new Date()))))
+      for p in model.poles
+        p.obj.shift()
+        ht = lastSound[p.chan] * model.master.heightScale()
+        pc = colorScale(p.primaryColor(), model.master.brightness())
+        col = p.snowColumn(ht, pc, brighter(pc, 1.4))
+        p.obj.setColumn(null, col)
+    nextFrame = t + 10
+    setTimeout(step, Math.max(0, (nextFrame - (+new Date()))))
   step()
 
   ws = new WebSocket("ws://localhost:3001/sound")
   ws.onopen = -> console.log("connected")
-  ws.onmessage = (ev) -> console.log("got", window.ev = JSON.parse(ev.data))
+  ws.onmessage = (ev) ->
+    lastSound = JSON.parse(ev.data)
   window.ws = ws
+
+  
