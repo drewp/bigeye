@@ -89,13 +89,16 @@ class Pole2
     @inputScale = ko.observable(1)
     @inputGamma = ko.observable(1)
     @primaryColor = ko.observable([1,1,1])
+    @brightness = ko.observable(1)
 
-  snowColumn: (frac, primary, snow) =>
+  snowColumn: (frac, frostFraction, primary, snow) =>
     col = []
+    ff = 1 - frostFraction
     frac = Math.pow(frac * @inputScale(), @inputGamma())
-    for x in [0...Math.round(frac * .7 * ledPerPole)]
+    primaryRows = Math.round(frac * ff * ledPerPole)
+    for x in [0...primaryRows]
       col.push(primary)
-    for x in [Math.round(frac * .7 * ledPerPole)...Math.round(frac * ledPerPole)]
+    for x in [primaryRows...Math.round(frac * ledPerPole)]
       col.push(snow)
     for x in [0...ledPerPole - col.length + 1]
       col.push([0,0,0])
@@ -113,6 +116,8 @@ window.addEventListener 'load', ->
     master:
       brightness: ko.observable(1)
       heightScale: ko.observable(1)
+      frostFraction: ko.observable(.1)
+      frostScale: ko.observable(1.4)
     poles: [
       new Pole2('bass'),
       new Pole2('drums'),
@@ -135,8 +140,8 @@ window.addEventListener 'load', ->
       for p in model.poles
         p.obj.shift()
         ht = lastSound[p.chan] * model.master.heightScale()
-        pc = colorScale(p.primaryColor(), model.master.brightness())
-        col = p.snowColumn(ht, pc, brighter(pc, 1.4))
+        pc = colorScale(p.primaryColor(), model.master.brightness() * p.brightness())
+        col = p.snowColumn(ht, model.master.frostFraction(), pc, brighter(pc, model.master.frostScale()))
         p.obj.setColumn(null, col)
     nextFrame = t + 10
     setTimeout(step, Math.max(0, (nextFrame - (+new Date()))))
