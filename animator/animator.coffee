@@ -49,6 +49,8 @@ class Pole
       @ctx.fillStyle = 'rgb(' + Math.round(r*scl) + ',' + Math.round(g*scl) + ',' + Math.round(b*scl) + ')'
       @ctx.fillRect(x, (ledPerPole - row) * pxPerRow, colWidth, pxPerRow - 1)
 
+padHandler = (x,y) -> null
+
 class PadCanvas
   constructor: (@elem, @config) -> # also a cb for picking coord and img color
     console.log("set up in ", @elem, @config)
@@ -76,7 +78,7 @@ class PadCanvas
     canvas.addEventListener('click', setColorFromMouse)
     canvas.addEventListener 'mousemove', (ev) =>
       setColorFromMouse(ev) if ev.which == 1
-
+    padHandler = (x,y) -> setColorFromMouse({offsetX: x/2, offsetY: y/2})
 
   # click events, midi events
     
@@ -113,6 +115,7 @@ colorScale = brighter
       
 window.addEventListener 'load', ->
   model = window.model =
+    pad1: ko.observable([0,0,0])
     master:
       brightness: ko.observable(1)
       heightScale: ko.observable(1)
@@ -151,6 +154,22 @@ window.addEventListener 'load', ->
   ws.onopen = -> console.log("connected")
   ws.onmessage = (ev) ->
     lastSound = JSON.parse(ev.data)
-  window.ws = ws
 
-  
+  ws = new WebSocket("ws://localhost:3001/midi")
+  ws.onopen = -> console.log("connected")
+
+  lastMidiSeen = {} # data1: data2
+  ws.onmessage = (ev) ->
+    msg = JSON.parse(ev.data)
+    lastMidiSeen[msg.data1] = msg.data2
+    
+    if msg.data1 == 0 and lastMidiSeen[12] > 30 then model.master.brightness(msg.data2 / 127)
+    if msg.data1 == 1 and lastMidiSeen[13] > 30 then model.master.heightScale(msg.data2 / 127)
+    if msg.data1 == 2 and lastMidiSeen[14] > 30 then model.master.frostFraction(msg.data2 / 127)
+    if msg.data1 == 3 and lastMidiSeen[15] > 30 then model.master.frostScale(msg.data2 / 127)
+
+    if msg.data1 == 23 then model.pad1([msg.data2, model.pad1()[1], model.pad1()[2]])
+    if msg.data1 == 24 then model.pad1([model.pad1()[0], msg.data2, model.pad1()[2]])
+    if msg.data1 == 25 then model.pad1([model.pad1()[0], model.pad1()[1], msg.data2])
+    if model.pad1()[0] > 20
+      padHandler(model.pad1()[1], 64 - model.pad1()[2])
