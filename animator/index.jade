@@ -1,17 +1,44 @@
 !!! 5
 html(style='background: rgb(27, 27, 27);')
   head
-    title
+    title animator
     meta(charset='utf-8')
-    style
-      canvas {
-        margin-right: 10px;
-      }
+    link(rel='stylesheet', href='style.css')
   body
-    canvas#pole0(width='500px', height='400px')
-    canvas#pole1(width='500px', height='400px')
-    canvas#pole2(width='500px', height='400px')
-    canvas#pole3(width='500px', height='400px')
-    canvas#pole4(width='500px', height='400px')
-    canvas#pole5(width='500px', height='400px')
+    pre(data-bind="text: pad1")
+    div.master(data-bind="with: master")
+      h1
+        | Master
+      div.control
+        | Brightness
+        input(type="range", min="0", max="1", step=".01", data-bind="value: brightness, valueUpdate: 'input'")
+      div.control
+        | Height scale
+        input(type="range", min="0", max="1", step=".01", data-bind="value: heightScale, valueUpdate: 'input'")
+      div.control
+        | Frost fraction
+        input(type="range", min="0", max="1", step=".01", data-bind="value: frostFraction, valueUpdate: 'input'")
+      div.control
+        | Frost scale
+        input(type="range", min="1", max="2", step=".01", data-bind="value: frostScale, valueUpdate: 'input'")
+        
+    div(data-bind="foreach: poles")
+      div.pole
+        h1
+          | Chan: 
+          span(data-bind="text: chan")
+        canvas(data-bind="attr: {'id': 'chan-' + chan}", width='500px', height='400px')
+        .controls
+          div.control
+            | Input scale
+            input(type="range", min="0", max="10", step=".01", data-bind="value: inputScale, valueUpdate: 'input'")
+          div.control
+            | Input gamma
+            input(type="range", min=".001", max="2", step=".001", data-bind="value: inputGamma, valueUpdate: 'input'")
+          div.control
+            | Brightness
+            input(type="range", min="0", max="2", step=".001", data-bind="value: brightness, valueUpdate: 'input'")
+          div.control(data-bind="padCanvas: {title: 'Primary color', background: 'colorWedge.png', colorClick: primaryColor}")
+
+    script(src='lib/knockout-3.1.0.js')
     script(src='animator.js')
