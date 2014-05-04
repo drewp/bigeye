@@ -1,0 +1,3 @@
+
+ran this to upgrade the bootloader:
+micronucleus --run micronucleus-1.11-upgrade.hex
