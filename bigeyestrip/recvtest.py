@@ -1,6 +1,6 @@
 #bin/python
 from __future__ import division
-import sys, time, colorsys, math
+import sys, time, colorsys, math, random
 sys.path.append("DigisparkExamplePrograms/Python/DigiUSB/source")
 
 from arduino.usbdevice import ArduinoUsbDevice
@@ -19,13 +19,27 @@ if __name__ == "__main__":
             print e
             time.sleep(.01)
             retryWrite(b)
+    hue = .1
     while 1:
         now = time.time()
+        colors = []
+        amp = math.sin(now * 6.28 * .8) / 2 + .5
+        if amp < .02:
+            hue = random.random()
+        leds = 26
+        for pos in range(leds):
+            if amp - pos / leds < .2:
+                bright = 1
+                sat = .5
+            else:
+                bright = .1
+                sat = 1
+            colors.append(colorsys.hsv_to_rgb(hue,#(now * .3 + pos / 3) % 1.0,
+                                              sat,
+                                              bright * min(1, max(0, amp - pos / leds))))
+       
         retryWrite(0x60)
-        for pos in range(3):
-            color = colorsys.hsv_to_rgb((now * .3 + pos / 3) % 1.0,
-                                        1,
-                                        math.sin((now + pos / 3) * 6.28 * 2) / 2 + .5)
+        for color in colors:
             retryWrite(int(255 * color[0]))
             retryWrite(int(255 * color[1]))
             retryWrite(int(255 * color[2]))
