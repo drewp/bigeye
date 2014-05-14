@@ -1,3 +1,41 @@
 
 ran this to upgrade the bootloader:
 micronucleus --run micronucleus-1.11-upgrade.hex
+
+WS2812 50mA at 5V per led = 2500mA for a column, 15A (75W) for all columns.
+
+  strip of 150, $46 on ebay. http://www.ebay.com/itm/301111593889?var=600217450465&ssPageName=STRK:MEWNX:IT&_trksid=p3984.m1497.l2649
+
+arduino nano:
+  http://www.dx.com/p/arduino-nano-v3-0-81877 $7.30 no bootloader
+  http://usd.dx.com/product/arduino-nano-v3-0-901081877 $8.8 maybe bootloader
+  
+
+
+PSU:
+   3.8A unfinished for $8.55
+   http://usd.dx.com/product/5v-3-8a-regulated-switching-power-supply-silver-901145841
+
+   2.5A wall adapter for $10
+   http://www.amazon.com/Super-Power-Supply%C2%AE-5-5x2-5mm-Certified/dp/B00DHQQEWC/ref=sr_1_14?s=electronics&ie=UTF8&qid=1399867345&sr=1-14&keywords=5v+2.5a+power+adapter
+
+   3A wall adapter for $8
+   http://www.amazon.com/Super-Power-Supply%C2%AE-Universal-2-5x0-8mm/dp/B00HMNODS8/ref=pd_sim_sbs_e_32?ie=UTF8&refRID=02JEQDAN4KE9RGY6PKPH
+
+
+2.1mm jacks:
+  http://usd.dx.com/product/dc-jack-adapter-with-screw-thread-10-piece-pack-901122741 $0.40
+  http://www.amazon.com/Generic-5-5mmx2-1mm-Supply-Adapter-Socket/dp/B00EQ1UWX4/ref=sr_1_7?ie=UTF8&qid=1399965847&sr=8-7&keywords=2.1mm+jack $0.50
+
+theater lighting could use a rpi camera if it can take per-light pics with the right exposure
+  http://shop.pimoroni.com/products/rpi-camera-mount $45
+
+
+stand for poles:
+  http://www.amazon.com/Artificial-Christmas-Tree-Stand-119/dp/B001O23C4O/ $20 xmas tree stand, or similar
+
+
+poles: $22 at tap plastics; http://www.tapplastics.com/product/plastics/plastic_rods_tubes_shapes/clear_acrylic_tubes/141
+
+
+  
