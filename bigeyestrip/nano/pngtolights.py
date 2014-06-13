@@ -1,6 +1,6 @@
 #bin/python
 from __future__ import division
-import sys, time, os, traceback
+import sys, time, os, traceback, re
 
 import serial
 sys.path.append('/usr/lib/python2.7/dist-packages') # PIL, twisted
