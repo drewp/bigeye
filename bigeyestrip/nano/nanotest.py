@@ -2,7 +2,6 @@
 from __future__ import division
 import sys, time, colorsys, math, random, serial, re
 
-
 if __name__ == "__main__":
     port = serial.Serial('/dev/ttyUSB0', baudrate=115200)
 
@@ -19,15 +18,21 @@ if __name__ == "__main__":
         if amp < .02:
             hue = random.random()
         for pos in range(leds):
+            if pos < 100:
+                colors.append([0,0,0])
+                continue
             if amp - pos / leds < .2:
                 bright = 1
                 sat = .5
             else:
                 bright = .1
                 sat = 1
-            colors.append(colorsys.hsv_to_rgb(hue,#(now * .3 + pos / 3) % 1.0,
-                                              sat,
-                                              bright * min(1, max(0, amp - pos / leds))))
+            bright = 1;amp=10
+            if 1:
+                colors.append(colorsys.hsv_to_rgb(hue,#(now * .3 + pos / 3) % 1.0,
+                                                  sat,
+                                                  bright * min(1, max(0, amp - pos / leds))))
+
         port.write('\x60')
         for color in colors:
             port.write(chr(int(255 * color[0])) +

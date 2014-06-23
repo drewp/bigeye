@@ -23,17 +23,26 @@ if __name__ == "__main__":
     frames = 0
     lastAudioFrame = 0
     accum = None
+    levelAdj = 0
     while 1:
         if audioFrame == lastAudioFrame:
             continue
         lastAudioFrame = audioFrame
+        #print "new audio", latestAudio[0]
         colors = []
 
-        levels = numpy.clip((numpy.array(latestAudio[1][:50]) / 40 - .3) * 2, 0, 1) ** 2
+
+        
+        lowFreqs = latestAudio[1][:50]
+        levels = numpy.array([lowFreqs[i//3] for i in range(150)])
+        levels = numpy.absolute(levels)
+        print levels
+        levels = numpy.clip((levels / 60 - .1) * 1, 0, 1) ** 2
         if accum is None:
             accum = levels
-        accum = levels#.3 * accum + .7 * levels
-        levelAdj = numpy.clip((latestAudio[0] - 1200) / 6000, 0, 1)
+        accum = 0 * accum + 1 * levels
+        newLevelAdj = numpy.clip((latestAudio[0] - 1200) / 9000, 0, 1)
+        levelAdj = .2 * max(levelAdj, newLevelAdj) + .8 * newLevelAdj
         print levelAdj
         for pos in range(leds):
             # _______
@@ -43,7 +52,9 @@ if __name__ == "__main__":
             bright = 1
             if pos / leds > levelAdj:
                 bright = 0
-            colors.append([accum[pos] * bright, accum[pos] * bright, bright * .1])
+            colors.append([accum[pos] * bright,
+                           accum[pos] * bright,
+                           bright * .1])
 
         port.write('\x60')
         for color in colors:

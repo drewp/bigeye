@@ -1,6 +1,7 @@
 from __future__ import division
 import pyaudio, time, sys
 sys.path.append('/usr/lib/python2.7/dist-packages') # numpy
+sys.path.append('/usr/lib/pymodules/python2.7') # numpy on pi
 import numpy
 
 class AudioIn(object):
@@ -36,6 +37,7 @@ class AudioIn(object):
         # see http://www.raspberrypi.org/forums/viewtopic.php?p=314087
         fourier = numpy.fft.rfft(samples)
         power = numpy.log10(numpy.abs(fourier)) ** 2
+        #power = samples
         self.onData(max(abs(samples)), power)
         return (None, pyaudio.paContinue)
 
