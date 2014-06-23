@@ -58,7 +58,7 @@ if __name__ == "__main__":
     filename = '../colors.png'
 
     def frameOut(colors):
-        port.write('\x60')
+        port.write('\x60\x00')
         for color in colors:
             port.write(chr(int(color[2])) +
                        chr(int(color[0])) +

@@ -28,24 +28,34 @@ int main(void) {
   Serial.begin(115200);
 
  
-  uint8_t i;
+  uint8_t i,r,g,b;
   while (1) {
-    while (Serial.available() <= 0) {
+    while (Serial.available() <= 2) {
     }
     i = Serial.read();
     if (i != 0x60) {
       continue;
     }
-    
-    digitalWrite(debugLed, 1);
-    for (i=0; i < strip.numPixels(); i++) {
-      while (Serial.available() < 3) {
+    i = Serial.read(); // command
+    if (i == 0) { // set strip: 0x60 0x00 <numPixels * 3 bytes>
+      digitalWrite(debugLed, 1);
+      for (i=0; i < strip.numPixels(); i++) {
+        while (Serial.available() < 3) {
+        }
+        r = Serial.read();
+        g = Serial.read();
+        b = Serial.read();
+        strip.setPixelColor(i, strip.Color(g, r, b));
       }
-      strip.setPixelColor(i, strip.Color(Serial.read(), Serial.read(), Serial.read()));
-    }
-    strip.show();
+      strip.show();
 
-    digitalWrite(debugLed, 0);
+      digitalWrite(debugLed, 0);
+    } else if (i == 1) { // set pwm on D3: 0x60 0x01 <level>
+      while (Serial.available() < 1) {
+      }
+      analogWrite(3, Serial.read());
+    } else {
+        // unknown command
+    }
   }
 }
-
